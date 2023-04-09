@@ -7,6 +7,7 @@ import com.example.demo.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,12 +31,14 @@ public class UserServiceImp implements UserService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String phoneNum) throws UsernameNotFoundException {
 
-        Users user = userRepo.findByEmail(email);
+        Users user = userRepo.findUsersByPhoneNum(phoneNum);
         if(user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+        if(user.getEmail()==null && user.getPassword()==null)
+            return new User(phoneNum, "",mapRolesToAuthorities(user.getRole()));
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRole()));
     }
 
@@ -55,4 +58,16 @@ public class UserServiceImp implements UserService {
 
         return userRepo.save(user);
     }
+
+    @Override
+    public Users save(String phoneNum) {
+        com.example.demo.user.model.Role role = roleRepo.findByRole("USER");
+
+        Users user = new Users();
+        user.setPhoneNum(phoneNum);
+        user.setRole(role);
+        return userRepo.save(user);
+    }
+
+
 }

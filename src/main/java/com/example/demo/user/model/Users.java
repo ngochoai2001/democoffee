@@ -20,11 +20,12 @@ public class Users {
     private Date birthDate;
     private Gender gender;
     private String avatarLink;
-    private String beginDate;
+    private Date beginDate;
+    private String phoneNum;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_role", joinColumns = @JoinColumn(name = "cust_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id") )
-    Set<Role> roles = new HashSet<Role>();
+    Set<Role> roles = new HashSet<>();
     public Set<Role> getRole() {
         return roles;
     }
@@ -32,5 +33,5 @@ public class Users {
     public void setRole(Role role) {
         this.roles.add(role);
     }
-    private String phoneNum;
+
 }

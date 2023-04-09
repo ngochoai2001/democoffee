@@ -31,6 +31,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
         String redirectUrl = null;
         UsersRegisteredDTO user = null;
+        //google
         if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
             DefaultOAuth2User userDetails = (DefaultOAuth2User) authentication.getPrincipal();
             String email = userDetails.getAttribute("email") != null ? userDetails.getAttribute("email") : userDetails.getAttribute("login") + "@gmail.com";
@@ -40,11 +41,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
                 user.setEmail(email);
                 user.setFullname(userDetails.getAttribute("given_name") != null ? userDetails.getAttribute("given_name") : userDetails.getAttribute("login"));
                 user.setPassword(("Dummy"));
-                user.setRole("USER");           
+                user.setRole("USER");
 //                user.setProfileImg(ImageUtils.downloadImgFromGGLink(userDetails.getAttribute("picture")));
                 userService.save(user);
             }
         }
+
         if (user != null) {
             response.setStatus(HttpServletResponse.SC_OK);
             Gson gson = new Gson();
