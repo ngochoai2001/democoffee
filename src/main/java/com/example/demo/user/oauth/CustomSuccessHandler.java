@@ -2,9 +2,11 @@ package com.example.demo.user.oauth;
 
 import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.repository.UserRepository;
-import com.example.demo.user.service.UserService;
+import com.example.demo.user.service.UserJwtService;
 
+import com.example.demo.utils.JwtUtils;
 import com.google.gson.Gson;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -23,7 +25,10 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     UserRepository userRepo;
 
     @Autowired
-    UserService userService;
+    UserJwtService userJwtService;
+
+    @Autowired
+    JwtUtils jwtUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -31,7 +36,8 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
 
         String redirectUrl = null;
         UsersRegisteredDTO user = null;
-        //google
+        String accessToken = null;
+        //oauth 2
         if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
             DefaultOAuth2User userDetails = (DefaultOAuth2User) authentication.getPrincipal();
             String email = userDetails.getAttribute("email") != null ? userDetails.getAttribute("email") : userDetails.getAttribute("login") + "@gmail.com";
@@ -42,20 +48,16 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
                 user.setFullname(userDetails.getAttribute("given_name") != null ? userDetails.getAttribute("given_name") : userDetails.getAttribute("login"));
                 user.setPassword(("Dummy"));
                 user.setRole("USER");
-//                user.setProfileImg(ImageUtils.downloadImgFromGGLink(userDetails.getAttribute("picture")));
-                userService.save(user);
+//                user.setProfileImg(ImageUtils.downlo  adImgFromGGLink(userDetails.getAttribute("picture")));
+                userJwtService.save(user);
             }
+            accessToken = jwtUtils.generateToken(email);
         }
 
-        if (user != null) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            Gson gson = new Gson();
-            response.getWriter().append(gson.toJson(user));
-
-        } else {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().append("Faild to login, pls try again ");
-        }
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        Gson gson = new Gson();
+        response.getWriter().append(gson.toJson(accessToken));
         response.setCharacterEncoding("UTF-8");
 
 //		redirectUrl = "/dashboard";

@@ -4,7 +4,7 @@ import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.model.Users;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface UserService extends UserDetailsService {
+public interface UserJwtService extends UserDetailsService {
     Users save(UsersRegisteredDTO userRegisteredDTO);
     Users save(String phoneNum);
 

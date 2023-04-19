@@ -1,6 +1,6 @@
 package com.example.demo.user.oauth;
 
-import com.example.demo.user.service.UserService;
+import com.example.demo.user.service.UserJwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @EnableWebSecurity
 public class SpringSecurityConfig {
     @Autowired
-    private UserService userService;
+    private UserJwtService userJwtService;
     @Autowired
     AuthenticationSuccessHandler successHandler;
 
@@ -27,7 +27,10 @@ public class SpringSecurityConfig {
                 .formLogin().loginPage("/login").successHandler(successHandler)
                 .and().csrf().disable()
                 .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
-                .and().oauth2Login().loginPage("/login").successHandler(successHandler);
+                .and().oauth2Login().loginPage("/login").successHandler(successHandler)
+                .and()
+
+        ;
         return http.build();
     }
 }

@@ -1,5 +1,8 @@
 package com.example.demo.sms;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.slf4j.Logger;
@@ -12,18 +15,30 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class TwilioOTPService implements OTPSender {
     private final static Logger LOGGER = LoggerFactory.getLogger(TwilioOTPService.class);
 
-    private final static Map<String, String> otpMap = new HashMap<>();
+    private static final Integer EXPIRE_MINS = 1;
+
+    private  static LoadingCache<String, String> otpMap ;
 
     String message = "Your confirmation OTP is: ";
     private final TwilioConfiguration twilioConfiguration;
     @Autowired
     public TwilioOTPService(TwilioConfiguration twilioConfiguration){
         this.twilioConfiguration = twilioConfiguration;
+        otpMap = CacheBuilder.newBuilder().
+                expireAfterWrite(EXPIRE_MINS, TimeUnit.MINUTES)
+                .build(new CacheLoader<String, String>() {
+                    public String load(String key) {
+                        return "";
+                    }
+                    });
+
     }
     @Override
     public OTPDto sendOTP(String phoneNum) {
@@ -46,12 +61,12 @@ public class TwilioOTPService implements OTPSender {
 
     }
     @Override
-    public boolean validateOTP(OTPDto otpDto){
+    public boolean validateOTP(OTPDto otpDto) throws ExecutionException {
 
         String userOTP = otpDto.getOtp();
         String sendedOTP = otpMap.get(otpDto.getPhoneNum());
         boolean result = sendedOTP == null? false: sendedOTP.equalsIgnoreCase(userOTP);
-        otpMap.remove(otpDto.getPhoneNum());
+        otpMap.invalidate(otpDto.getPhoneNum());
         return result;
 
     }

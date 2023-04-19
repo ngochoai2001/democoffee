@@ -1,7 +1,7 @@
 package com.example.demo.user.controller;
 
 import com.example.demo.user.dto.UsersRegisteredDTO;
-import com.example.demo.user.service.UserService;
+import com.example.demo.user.service.UserJwtService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/registration")
 public class RegistrationController {
 
-	 private UserService userService;
+	 private UserJwtService userJwtService;
 
-	    public RegistrationController(UserService userService) {
+	    public RegistrationController(UserJwtService userJwtService) {
 	        super();
-	        this.userService = userService;
+	        this.userJwtService = userJwtService;
 	    }
 
 	    @ModelAttribute("user")

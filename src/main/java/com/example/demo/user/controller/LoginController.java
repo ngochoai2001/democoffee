@@ -3,16 +3,16 @@ package com.example.demo.user.controller;
 import com.example.demo.sms.OTPDto;
 import com.example.demo.sms.OTPSender;
 import com.example.demo.user.dto.UserLoginDTO;
-import com.example.demo.user.model.Users;
 import com.example.demo.user.repository.UserRepository;
-import com.example.demo.user.service.UserService;
+import com.example.demo.user.service.UserJwtService;
+import com.example.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 
 @RestController
@@ -20,7 +20,9 @@ import java.util.Date;
 
 public class LoginController {
 	@Autowired
-	private UserService userService;
+	private UserJwtService userJwtService;
+	@Autowired
+	private JwtUtils jwtUtils;
 	@Autowired
 	private OTPSender otpSender;
 	@Autowired
@@ -57,14 +59,17 @@ public class LoginController {
 		return otpSender.sendOTP(otpDto.getPhoneNum());
 	}
 	@PostMapping()
-	public void validateOTP(@RequestBody OTPDto otpDto){
+	public String validateOTP(@RequestBody OTPDto otpDto) throws ExecutionException {
 		if(otpSender.validateOTP(otpDto)){
 			try{
-				userService.loadUserByUsername(otpDto.getPhoneNum());
+				userJwtService.loadUserByUsername(otpDto.getPhoneNum());
 			}catch(UsernameNotFoundException e){
-				userService.save(otpDto.getPhoneNum());
+				userJwtService.save(otpDto.getPhoneNum());
 			}
+			return jwtUtils.generateToken(otpDto.getPhoneNum());
+
 		}
+		return "Invalid OTP";
 
 	}
 	

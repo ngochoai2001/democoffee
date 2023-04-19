@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImp implements UserService {
+public class UserJwtServiceImp implements UserJwtService {
     @Autowired
     private UserRepository userRepo;
 
