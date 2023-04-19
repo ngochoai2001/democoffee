@@ -3,6 +3,7 @@ package com.example.demo.user.controller;
 import com.example.demo.sms.OTPDto;
 import com.example.demo.sms.OTPSender;
 import com.example.demo.user.dto.UserLoginDTO;
+import com.example.demo.user.dto.UserLoginResponse;
 import com.example.demo.user.repository.UserRepository;
 import com.example.demo.user.service.UserJwtService;
 import com.example.demo.utils.JwtUtils;
@@ -59,17 +60,23 @@ public class LoginController {
 		return otpSender.sendOTP(otpDto.getPhoneNum());
 	}
 	@PostMapping()
-	public String validateOTP(@RequestBody OTPDto otpDto) throws ExecutionException {
+	public UserLoginResponse validateOTP(@RequestBody OTPDto otpDto, HttpServletResponse response) throws ExecutionException {
+		UserLoginResponse userLoginResponse = new UserLoginResponse();
 		if(otpSender.validateOTP(otpDto)){
 			try{
 				userJwtService.loadUserByUsername(otpDto.getPhoneNum());
 			}catch(UsernameNotFoundException e){
 				userJwtService.save(otpDto.getPhoneNum());
 			}
-			return jwtUtils.generateToken(otpDto.getPhoneNum());
-
+			userLoginResponse.setAccessToken(jwtUtils.generateToken(otpDto.getPhoneNum()));
+			userLoginResponse.setStatus("200");
+		}else{
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			userLoginResponse.setStatus("400");
+			userLoginResponse.setMessage("Invalid OTP");
 		}
-		return "Invalid OTP";
+
+		return userLoginResponse;
 
 	}
 	

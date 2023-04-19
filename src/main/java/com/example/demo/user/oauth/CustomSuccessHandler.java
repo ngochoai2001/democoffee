@@ -1,5 +1,6 @@
 package com.example.demo.user.oauth;
 
+import com.example.demo.user.dto.UserLoginResponse;
 import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.repository.UserRepository;
 import com.example.demo.user.service.UserJwtService;
@@ -53,11 +54,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
             }
             accessToken = jwtUtils.generateToken(email);
         }
-
+        UserLoginResponse userLoginResponse = new UserLoginResponse();
+        userLoginResponse.setAccessToken(accessToken);
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         Gson gson = new Gson();
-        response.getWriter().append(gson.toJson(accessToken));
+        response.getWriter().append(gson.toJson(userLoginResponse));
         response.setCharacterEncoding("UTF-8");
 
 //		redirectUrl = "/dashboard";
