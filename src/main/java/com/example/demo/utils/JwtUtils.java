@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 @Component
 public class JwtUtils {
+    public static final String GOOGLE_CLIENT_ID = "643880852348-4pkvdq87s1tvig24o6o1fnsjli82cc18.apps.googleusercontent.com";
 
 
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";

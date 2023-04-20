@@ -23,13 +23,6 @@ public class SpringSecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/registration/**","/login/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin().loginPage("/login").successHandler(successHandler)
-                .and().csrf().disable()
-                .logout().logoutUrl("/logout").logoutSuccessUrl("/login")
-                .and().oauth2Login().loginPage("/login").successHandler(successHandler)
-                .and()
-
         ;
         return http.build();
     }

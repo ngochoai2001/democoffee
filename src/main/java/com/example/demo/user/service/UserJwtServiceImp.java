@@ -53,7 +53,8 @@ public class UserJwtServiceImp implements UserJwtService {
         Users user = new Users();
         user.setEmail(userRegisteredDTO.getEmail());
         user.setFullname(userRegisteredDTO.getFullname());
-        user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
+        if(user.getPassword()!=null)
+            user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
         user.setRole(role);
 
         return userRepo.save(user);
