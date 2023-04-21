@@ -2,6 +2,7 @@ package com.example.demo.user.oauth;
 
 import com.example.demo.user.dto.UserLoginResponse;
 import com.example.demo.user.dto.UsersRegisteredDTO;
+import com.example.demo.user.model.SaveAccount;
 import com.example.demo.user.repository.UserRepository;
 import com.example.demo.user.service.UserJwtService;
 
@@ -50,7 +51,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
                 user.setPassword(("Dummy"));
                 user.setRole("USER");
 //                user.setProfileImg(ImageUtils.downlo  adImgFromGGLink(userDetails.getAttribute("picture")));
-                userJwtService.save(user);
+                SaveAccount.users = userJwtService.save(user);
             }
             accessToken = jwtUtils.generateToken(email);
         }

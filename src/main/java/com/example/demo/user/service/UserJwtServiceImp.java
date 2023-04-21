@@ -1,6 +1,9 @@
 package com.example.demo.user.service;
+
+import com.example.demo.user.dto.CommonResponse;
 import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.model.Role;
+import com.example.demo.user.model.SaveAccount;
 import com.example.demo.user.model.Users;
 import com.example.demo.user.repository.RoleRepository;
 import com.example.demo.user.repository.UserRepository;
@@ -13,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,20 +33,20 @@ public class UserJwtServiceImp implements UserJwtService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-
     @Override
     public UserDetails loadUserByUsername(String phoneNum) throws UsernameNotFoundException {
 
         Users user = userRepo.findUsersByPhoneNum(phoneNum);
-        if(user == null) {
+        if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        if(user.getEmail()==null && user.getPassword()==null)
-            return new User(phoneNum, "",mapRolesToAuthorities(user.getRole()));
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRole()));
+        SaveAccount.users = user;
+        if (user.getEmail() == null && user.getPassword() == null)
+            return new User(phoneNum, "", mapRolesToAuthorities(user.getRole()));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), "", mapRolesToAuthorities(user.getRole()));
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles){
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRole())).collect(Collectors.toList());
     }
 
@@ -53,8 +57,7 @@ public class UserJwtServiceImp implements UserJwtService {
         Users user = new Users();
         user.setEmail(userRegisteredDTO.getEmail());
         user.setFullname(userRegisteredDTO.getFullname());
-        if(user.getPassword()!=null)
-            user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
+        if (user.getPassword() != null) user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
         user.setRole(role);
 
         return userRepo.save(user);
@@ -70,5 +73,34 @@ public class UserJwtServiceImp implements UserJwtService {
         return userRepo.save(user);
     }
 
+    @Override
+    @Transactional
+    public CommonResponse updateUser(String fullname, String email, String phoneNum, long id) {
+        try {
+            int result = userRepo.updateUser(fullname, email, phoneNum, id);
+            if (result == 1) {
+                SaveAccount.users.setFullname(fullname);
+                SaveAccount.users.setEmail(email);
+                return new CommonResponse("successful", 200);
+            }
+            return new CommonResponse("failure", 400);
+        } catch (Exception e) {
+            return new CommonResponse("failure", 400);
+        }
+    }
 
+    @Override
+    @Transactional
+    public CommonResponse deleteUser(long id) {
+        try {
+            int result = userRepo.deleteUser(id);
+            if (result == 1) {
+                SaveAccount.users = new Users();
+                return new CommonResponse("successful", 200);
+            }
+            return new CommonResponse("failure", 400);
+        } catch (Exception e) {
+            return new CommonResponse("failure", 400);
+        }
+    }
 }
