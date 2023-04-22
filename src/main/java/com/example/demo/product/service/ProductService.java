@@ -69,11 +69,11 @@ public class ProductService {
         product.setId(UUID.randomUUID());
         // 5. Store the image in s3 and update database (productProfileImageLink) with s3 image link
         String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
-        String filename = String.format("%s-%s", file.getOriginalFilename(), UUID.randomUUID());
+        String filename = String.format("%s", file.getOriginalFilename());
 //      Exact Product to save
 
 
-        product.setImageLink(Product.ORIGINAL_PATH + UUID.randomUUID() + "/" + filename);
+        product.setImageLink(Product.ORIGINAL_PATH + product.getId() + "/" + filename);
         try {
             //save img on AWS
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
