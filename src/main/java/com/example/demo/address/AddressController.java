@@ -1,7 +1,9 @@
 package com.example.demo.address;
 
-import com.example.demo.user.model.SaveAccount;
+import com.example.demo.common.Response;
+import com.example.demo.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,13 +18,19 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     // api get, add, edit, delete
     @GetMapping("")
     public ResponseEntity<?> getAddress(@RequestParam Long userid){
+        if (userRepository.findUsersById(userid)==null){
+            return Response.response(null, HttpStatus.NOT_FOUND, "Not found user");
+        }
         List<Address> list = addressRepository.getAddressByUserId(userid);
         if(list==null)
-            return ResponseEntity.ok("None");
-        return ResponseEntity.ok(addressRepository.getAddressByUserId(userid));
+            return Response.response(null, HttpStatus.OK, "No address");
+        return Response.response(list, HttpStatus.OK, "Success");
     }
 
     @PostMapping(value = "add")
