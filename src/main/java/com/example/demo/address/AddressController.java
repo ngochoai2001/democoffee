@@ -1,6 +1,7 @@
 package com.example.demo.address;
 
 import com.example.demo.user.model.SaveAccount;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,23 +10,24 @@ import java.util.List;
 @RestController
 @RequestMapping("user/address")
 public class AddressController {
-
+    @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
     private AddressService addressService;
 
     // api get, add, edit, delete
     @GetMapping("")
-    public ResponseEntity<?> getAddress(){
-//        return ResponseEntity.ok("list address ne");
-        List<Address> list = addressRepository.getAddressByUserId(SaveAccount.users.getId());
+    public ResponseEntity<?> getAddress(@RequestParam Long userid){
+        List<Address> list = addressRepository.getAddressByUserId(userid);
         if(list==null)
             return ResponseEntity.ok("None");
-        return ResponseEntity.ok(addressRepository.getAddressByUserId(SaveAccount.users.getId()));
+        return ResponseEntity.ok(addressRepository.getAddressByUserId(userid));
     }
 
     @PostMapping(value = "add")
-    public ResponseEntity<?> addAddress(@ModelAttribute  AddressDto addressDto){
-        Address address = addressService.addAddress(addressDto);
+    public ResponseEntity<?> addAddress(@ModelAttribute  AddressDto addressDto, @RequestParam Long userid){
+        Address address = addressService.addAddress(addressDto, userid);
         return ResponseEntity.ok(addressRepository.findAddressById(address.getId()));
     }
 
