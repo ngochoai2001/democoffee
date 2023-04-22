@@ -1,5 +1,6 @@
 package com.example.demo.user.jwt;
 
+import com.example.demo.user.model.SaveAccount;
 import com.example.demo.user.service.UserJwtService;
 import com.example.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             token = authHeader.substring(7);
             username = jwtUtils.extractUsername(token);
         }
+        SaveAccount.users = userJwtService.findUserByUsername(username);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userJwtService.loadUserByUsername(username);

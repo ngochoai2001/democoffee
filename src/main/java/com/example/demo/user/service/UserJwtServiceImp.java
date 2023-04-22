@@ -81,6 +81,12 @@ public class UserJwtServiceImp implements UserJwtService {
     }
 
     @Override
+    public Users findUserByUsername(String username) {
+        return userRepo.findUsersByUsername(username);
+    }
+
+
+    @Override
     @Transactional
     public CommonResponse updateUser(String fullname, String email, String phoneNum, long id) {
         try {

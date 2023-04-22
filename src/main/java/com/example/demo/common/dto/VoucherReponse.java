@@ -9,9 +9,9 @@ public class VoucherReponse {
     int id;
     String image;
     String name;
-    String quantity;
     String date;
     private long expireDateLeft;
+    private boolean isUsed;
     String description;
 
 }

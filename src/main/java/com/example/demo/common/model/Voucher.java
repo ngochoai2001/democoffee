@@ -18,6 +18,12 @@ public class Voucher {
     String quantity;
     Date date;
     String description;
+    @Enumerated(EnumType.STRING)
+    private VoucherType voucherType;
+    @Enumerated(EnumType.STRING)
+    private VoucherDiscountType voucherDiscountType;
+    private float discount;
+
     @Transient
     private long expiredDaysLeft;
 

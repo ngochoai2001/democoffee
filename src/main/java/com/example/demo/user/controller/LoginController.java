@@ -104,6 +104,7 @@ public class LoginController {
         if (otpSender.validateOTP(otpDto)) {
             try {
                 userJwtService.loadUserByUsername(otpDto.getPhoneNum());
+                SaveAccount.users = userJwtService.findUserByUsername(otpDto.getPhoneNum());
             } catch (UsernameNotFoundException e) {
                 SaveAccount.users = userJwtService.save(otpDto.getPhoneNum());
             }

@@ -2,6 +2,7 @@ package com.example.demo.common.service;
 
 import com.example.demo.common.dto.VoucherReponse;
 import com.example.demo.common.model.Header;
+import com.example.demo.common.model.UserVoucher;
 import com.example.demo.common.model.Voucher;
 import com.example.demo.common.repository.CommonRepository;
 import com.example.demo.user.model.SaveAccount;
@@ -22,22 +23,24 @@ public class CommonService {
         return commonRepository.getHeaders();
     }
     public List<VoucherReponse> getUsersVouchers(){
-
-
-        return commonRepository.getUsersVouchers().stream().map(voucher -> copyVoucher(voucher))
+        Users user = SaveAccount.users;
+        return commonRepository.getUsersVouchers(user.getId()).stream().map(vch -> copyVoucher(vch))
                 .collect(Collectors.toList())
                 ;
     }
-    public VoucherReponse copyVoucher(Voucher voucher){
+    public VoucherReponse copyVoucher(UserVoucher vch){
         VoucherReponse response = new VoucherReponse(
-                voucher.getId(), voucher.getImage(), voucher.getName(), voucher.getQuantity()+"",
-            DateUtils.dateFormat(voucher.getDate()),voucher.getExpiredDaysLeft(),voucher.getDescription()
+                vch.getId(), vch.getVch().getImage(), vch.getVch().getName(),
+            DateUtils.dateFormat(vch.getVch().getDate()),vch.getVch().getExpiredDaysLeft(),vch.isUsed(),vch.getVch().getDescription()
         );
         return response;
     }
-    public Voucher addVoucher(Voucher voucher){
-        commonRepository.save(voucher);
-        return voucher;
+    public Voucher addVoucher(Voucher vch){
+        commonRepository.save(vch);
+        return vch;
+    }
+    public List<Voucher> getVoucher(Voucher vchs){
+        return commonRepository.findAll();
     }
 
 }
