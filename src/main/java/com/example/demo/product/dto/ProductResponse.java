@@ -1,5 +1,6 @@
 package com.example.demo.product.dto;
 
+import com.example.demo.product.model.ProductCategory;
 import lombok.Data;
 
 import java.util.UUID;
@@ -10,5 +11,6 @@ public class ProductResponse {
     String name;
     double cost;
     String description;
-    private byte[] image;
+    private String image;
+    private ProductCategory productCategory;
 }

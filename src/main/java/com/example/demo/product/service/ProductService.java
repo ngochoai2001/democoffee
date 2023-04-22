@@ -41,11 +41,12 @@ public class ProductService {
     }
     private ProductResponse copyProduct(Product product){
         ProductResponse pResponse = new ProductResponse();
-        pResponse.setImage(downloadUserProfileImage(product));
+        pResponse.setImage(product.getImageLink().get());
         pResponse.setId(product.getId());
         pResponse.setDescription(product.getDescription());
         pResponse.setCost(product.getCost());
         pResponse.setName(product.getName());
+        pResponse.setProductCategory(product.getProductCategory());
         return pResponse;
     }
 
@@ -65,6 +66,7 @@ public class ProductService {
         product.setName(productDto.getName());
         product.setCost(productDto.getCost());
         product.setDescription(productDto.getDescription());
+        product.setProductCategory(productDto.getProductCategory());
         product.setId(UUID.randomUUID());
         // 5. Store the image in s3 and update database (productProfileImageLink) with s3 image link
         String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
@@ -72,7 +74,7 @@ public class ProductService {
 //      Exact Product to save
 
 
-        product.setImageLink(path+"/"+filename);
+        product.setImageLink(Product.ORIGINAL_PATH+ UUID.randomUUID()+"/"+filename);
         try {
             //save img on AWS
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
