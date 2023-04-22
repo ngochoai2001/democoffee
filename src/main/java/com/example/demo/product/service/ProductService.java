@@ -22,24 +22,23 @@ public class ProductService {
     private final FileStore fileStore;
 
     @Autowired
-    public ProductService(ProductRepository productRepository,
-                          FileStore fileStore) {
+    public ProductService(ProductRepository productRepository, FileStore fileStore) {
         this.productRepository = productRepository;
         this.fileStore = fileStore;
     }
 
     public List<ProductResponse> getAllProduct() {
         List<ProductResponse> productResponses = new ArrayList<>();
-        productResponses.addAll(
-                productRepository.findAll().stream().map(product -> copyProduct(product))
-                        .collect(Collectors.toList()));
-        return  productResponses;
+        productResponses.addAll(productRepository.findAll().stream().map(product -> copyProduct(product)).collect(Collectors.toList()));
+        return productResponses;
     }
-    public ProductResponse getProduct(UUID id){
+
+    public ProductResponse getProduct(UUID id) {
         Product product = productRepository.findById(id);
         return copyProduct(product);
     }
-    private ProductResponse copyProduct(Product product){
+
+    private ProductResponse copyProduct(Product product) {
         ProductResponse pResponse = new ProductResponse();
         pResponse.setImage(product.getImageLink().get());
         pResponse.setId(product.getId());
@@ -50,7 +49,7 @@ public class ProductService {
         return pResponse;
     }
 
-    public void uploadUserProfileImage(ProductDto productDto, MultipartFile file ) {
+    public void uploadUserProfileImage(ProductDto productDto, MultipartFile file) {
         // 1. Check if image is not empty
         isFileEmpty(file);
         // 2. If file is an image
@@ -70,15 +69,15 @@ public class ProductService {
         product.setId(UUID.randomUUID());
         // 5. Store the image in s3 and update database (productProfileImageLink) with s3 image link
         String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
-        String filename = String.format("%s", file.getOriginalFilename());
+        String filename = String.format("%s-%s", file.getOriginalFilename(), UUID.randomUUID());
 //      Exact Product to save
 
 
-        product.setImageLink(Product.ORIGINAL_PATH+ UUID.randomUUID()+"/"+filename);
+        product.setImageLink(Product.ORIGINAL_PATH + UUID.randomUUID() + "/" + filename);
         try {
             //save img on AWS
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
-           //save product to database
+            //save product to database
             productRepository.save(product);
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -88,13 +87,9 @@ public class ProductService {
 
     public byte[] downloadUserProfileImage(Product product) {
 
-        String path = String.format("%s/%s",
-                BucketName.PRODUCT_IMAGE.getBucketName(),
-                product.getId());
+        String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
 
-        return product.getImageLink()
-                .map(key -> fileStore.download(path, key))
-                .orElse(new byte[0]);
+        return product.getImageLink().map(key -> fileStore.download(path, key)).orElse(new byte[0]);
 
     }
 
@@ -106,21 +101,11 @@ public class ProductService {
     }
 
     private Product getUserProfileOrThrow(UUID productId) {
-        return productRepository
-                .findAll()
-                .stream()
-                .filter(productProfile -> productProfile.getImageLink().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(String.format("User profile %s not found", productId)));
+        return productRepository.findAll().stream().filter(productProfile -> productProfile.getImageLink().equals(productId)).findFirst().orElseThrow(() -> new IllegalStateException(String.format("User profile %s not found", productId)));
     }
 
     private void isImage(MultipartFile file) {
-        if (!Arrays.asList(
-                IMAGE_JPEG.getMimeType(),
-                IMAGE_PNG.getMimeType(),
-                IMAGE_GIF.getMimeType(),
-                IMAGE_SVG.getMimeType()
-                ).contains(file.getContentType())) {
+        if (!Arrays.asList(IMAGE_JPEG.getMimeType(), IMAGE_PNG.getMimeType(), IMAGE_GIF.getMimeType(), IMAGE_SVG.getMimeType()).contains(file.getContentType())) {
             throw new IllegalStateException("File must be an image [" + file.getContentType() + "]");
         }
     }
@@ -131,7 +116,9 @@ public class ProductService {
         }
     }
 
-    public List<Product> getSuggestionProduct() {
-        return productRepository.getSuggestionProduct("");
+    public List<ProductResponse> getSuggestionProduct() {
+        List<ProductResponse> productResponses = new ArrayList<>();
+        productResponses.addAll(productRepository.getSuggestionProduct("").stream().map(product -> copyProduct(product)).collect(Collectors.toList()));
+        return productResponses;
     }
 }
