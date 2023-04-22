@@ -25,12 +25,12 @@ public class AddressController {
     @GetMapping("")
     public ResponseEntity<?> getAddress(@RequestParam Long userid){
         if (userRepository.findUsersById(userid)==null){
-            return Response.response(null, HttpStatus.NOT_FOUND, "Not found user");
+            return Response.response(null, 404, "Not found user");
         }
         List<Address> list = addressRepository.getAddressByUserId(userid);
         if(list==null)
-            return Response.response(null, HttpStatus.OK, "No address");
-        return Response.response(list, HttpStatus.OK, "Success");
+            return Response.response(null, 200, "No address");
+        return Response.response(list, 200, "Success");
     }
 
     @PostMapping(value = "add")

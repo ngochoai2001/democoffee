@@ -1,5 +1,7 @@
 package com.example.demo.product.model;
 
+import com.example.demo.order.model.Order;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,9 +22,6 @@ public class Product {
     String description;
     @Enumerated(EnumType.STRING)
     private ProductCategory productCategory;
-
-
-
 
 
     public Optional<String> getImageLink() {

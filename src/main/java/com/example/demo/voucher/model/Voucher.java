@@ -1,15 +1,35 @@
 package com.example.demo.voucher.model;
 
-public class Voucher {
+import com.example.demo.utils.DateUtils;
+import lombok.Data;
 
-    /* get (user), add, edit, remove
-    - mã
-    - link ảnh
-    - tên (free ship hoặc giảm tiền)
-    - free ship : boolean
-    - số tiền giảm : ?k
-    - ngày hết hạn
-    - đã dùng hay chưa : boolean
-    - miêu tả
-     */
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
+
+@Data
+@Entity
+public class Voucher {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    int id;
+    String image;
+    String name;
+    String quantity;
+    Date date;
+    String description;
+    @Enumerated(EnumType.STRING)
+    private VoucherType voucherType;
+    @Enumerated(EnumType.STRING)
+    private VoucherDiscountType voucherDiscountType;
+    private float discount;
+
+    @Transient
+    private long expiredDaysLeft;
+
+    public long getExpiredDaysLeft() {
+        Date currentDate  = new Date();
+        expiredDaysLeft = DateUtils.getDaysBetween(new Date(), date);
+        return expiredDaysLeft;
+    }
 }
