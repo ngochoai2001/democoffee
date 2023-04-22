@@ -2,8 +2,7 @@ package com.example.demo.product.model;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,12 +10,16 @@ import java.util.UUID;
 @Entity
 @Data
 public class Product {
+    @Transient
+    public static final String ORIGINAL_PATH="https://magic-coffee-img.s3.amazonaws.com/";
     @Id
     UUID id;
     private String imageLink;
     String name;
     double cost;
     String description;
+    @Enumerated(EnumType.STRING)
+    private ProductCategory productCategory;
 
 
 

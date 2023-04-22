@@ -13,6 +13,9 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 
     Users findUsersByPhoneNum(String phoneNum);
 
+    Users findUsersByUsername(String username);
+
+
     @Modifying
     @Query("update Users u set u.fullname = :fullname, u.email = :email, u.phoneNum = :phoneNum where u.id = :id")
     int updateUser(@Param("fullname") String fullname, @Param("email") String email, @Param("phoneNum") String phoneNum, @Param("id") long id);

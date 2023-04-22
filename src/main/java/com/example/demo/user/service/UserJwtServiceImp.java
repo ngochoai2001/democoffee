@@ -1,5 +1,6 @@
 package com.example.demo.user.service;
 
+import com.amazonaws.services.connect.model.UserNotFoundException;
 import com.example.demo.user.dto.CommonResponse;
 import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.model.Role;
@@ -34,15 +35,15 @@ public class UserJwtServiceImp implements UserJwtService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String phoneNum) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Users user = userRepo.findUsersByPhoneNum(phoneNum);
+        Users user = userRepo.findUsersByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
         SaveAccount.users = user;
         if (user.getEmail() == null && user.getPassword() == null)
-            return new User(phoneNum, "", mapRolesToAuthorities(user.getRole()));
+            return new User(username, "", mapRolesToAuthorities(user.getRole()));
         return new org.springframework.security.core.userdetails.User(user.getEmail(), "", mapRolesToAuthorities(user.getRole()));
     }
 
@@ -53,21 +54,27 @@ public class UserJwtServiceImp implements UserJwtService {
     @Override
     public Users save(UsersRegisteredDTO userRegisteredDTO) {
         com.example.demo.user.model.Role role = roleRepo.findByRole("USER");
+        Users user = userRepo.findUsersByUsername(userRegisteredDTO.getUsername());
+        try {
+            loadUserByUsername(userRegisteredDTO.getUsername());
+        } catch (UsernameNotFoundException e) {
+            user = new Users();
+            user.setUsername(userRegisteredDTO.getEmail());
+            user.setEmail(userRegisteredDTO.getEmail());
+            user.setFullname(userRegisteredDTO.getFullname());
+            if (user.getPassword() != null) user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
+            user.setRole(role);
 
-        Users user = new Users();
-        user.setEmail(userRegisteredDTO.getEmail());
-        user.setFullname(userRegisteredDTO.getFullname());
-        if (user.getPassword() != null) user.setPassword(passwordEncoder.encode(userRegisteredDTO.getPassword()));
-        user.setRole(role);
-
-        return userRepo.save(user);
+            return userRepo.save(user);
+        }
+        return user;
     }
 
     @Override
     public Users save(String phoneNum) {
         com.example.demo.user.model.Role role = roleRepo.findByRole("USER");
-
         Users user = new Users();
+        user.setUsername(phoneNum);
         user.setPhoneNum(phoneNum);
         user.setRole(role);
         return userRepo.save(user);

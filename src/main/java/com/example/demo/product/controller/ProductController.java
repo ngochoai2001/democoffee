@@ -34,7 +34,7 @@ public class ProductController {
     }
 
     @GetMapping("suggestion/")
-    public List<Product> getSuggestionProduct(){
+    public List<ProductResponse> getSuggestionProduct(){
         return productService.getSuggestionProduct();
     }
 
