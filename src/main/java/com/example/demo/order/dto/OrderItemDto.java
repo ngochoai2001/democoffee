@@ -11,5 +11,6 @@ public class OrderItemDto {
     private UUID product_id;
     private String size;
     private String topping;
+    private int quantity;
 
 }

@@ -46,10 +46,11 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(productRepository.findById(i.getProduct_id()));
             orderItem.setSize(i.getSize());
+            orderItem.setQuantity(i.getQuantity());
             orderItem.setTopping(i.getTopping());
             orderItems.add(orderItem);
         }
-        order.setPaymentMethod("Paypal");
+        order.setStatus("Pending");
         order.setVoucher(userVoucherRepository.findUserVoucherById(orderDto.getUser_voucher_id()));
         return orderRepository.save(order);
     }

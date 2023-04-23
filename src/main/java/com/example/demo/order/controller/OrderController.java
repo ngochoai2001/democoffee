@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -62,6 +63,7 @@ public class OrderController {
                     OrderItem orderItem = new OrderItem();
                     orderItem.setProduct(productRepository.findById(i.getProduct_id()));
                     orderItem.setSize(i.getSize());
+                    orderItem.setQuantity(i.getQuantity());
                     orderItem.setTopping(i.getTopping());
                     orderItemRepository.save(orderItem);
                 }
@@ -96,9 +98,10 @@ public class OrderController {
         return Response.response(null, 400, "Payment pending");
     }
 
-    @PostMapping("order_pay_with_cash")
+    @PostMapping("order_pay_by_cash")
     public ResponseEntity<?> order_by_cash(@RequestBody OrderDto orderDto, @RequestParam Long user_id ) {
         Set<OrderItemDto> setOrderItem = orderDto.getOrder_items();
+
         for( OrderItemDto i : setOrderItem){
             if ( productRepository.findById(i.getProduct_id()) ==null)
                 return Response.response(null, 400, "Not found product" +
@@ -108,13 +111,19 @@ public class OrderController {
                 orderItem.setProduct(productRepository.findById(i.getProduct_id()));
                 orderItem.setSize(i.getSize());
                 orderItem.setTopping(i.getTopping());
+                orderItem.setQuantity(i.getQuantity());
                 orderItemRepository.save(orderItem);
             }
         }
-
         Order order = orderService.createOrder(orderDto, user_id);
         order.setPaymentMethod("Cash");
         orderRepository.save(order);
+
+        List<OrderItem> orderItems = orderItemRepository.findAll();
+        for (OrderItem i : orderItems){
+            i.setOrder(orderRepository.findOrderById(order.getId()));
+            orderItemRepository.save(i);
+        }
 
         return Response.response(order, 400, "Order success");
     }

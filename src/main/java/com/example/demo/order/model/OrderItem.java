@@ -23,5 +23,9 @@ public class OrderItem {
 
     private String topping;
 
+    private int quantity;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
 }

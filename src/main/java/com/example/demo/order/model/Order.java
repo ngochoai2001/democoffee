@@ -37,8 +37,7 @@ public class Order {
     private Users user;
 
     @JsonManagedReference
-    @OneToMany
-    @JoinColumn(name = "order_item_id")
+    @OneToMany(mappedBy = "order")
     private Set<OrderItem> order_items;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
