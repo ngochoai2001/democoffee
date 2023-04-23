@@ -209,4 +209,13 @@ public class OrderController {
         return Response.response(orderRepository.getOrderByUser(user_id), 200, "Success");
     }
 
+    @PutMapping("rating_order")
+    public ResponseEntity<?> ratingOrder(@RequestParam Long id, @RequestBody int rate ){
+        Order order =  orderRepository.findOrderById(id);
+        if (order==null)
+            return Response.response(null, 400, "Not found order");
+        order.setRating(rate);
+        return Response.response(orderRepository.save(order), 200, "Success");
+    }
+
 }
