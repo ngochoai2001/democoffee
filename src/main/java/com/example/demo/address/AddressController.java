@@ -49,8 +49,8 @@ public class AddressController {
     @DeleteMapping(value = "delete/{id}")
     public ResponseEntity<?> deleteAddress(@PathVariable Long id){
         if(addressRepository.findAddressById(id)==null)
-            return ResponseEntity.ok("Cannnot found");
+            return Response.response(null, 400, "Not found");
         addressRepository.deleteById(id);
-        return ResponseEntity.ok("Delete success");
+        return Response.response(null, 200, "Success");
     }
 }

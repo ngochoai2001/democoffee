@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
     public Order createOrder(OrderDto orderDto, Long user_id) {
         Order order = new Order();
         order.setUser(userRepository.findUsersById(user_id));
-        order.setTotal(orderDto.getTotal());
+        order.setTotal(orderDto.getTotal()*1000);
         order.setAddress(addressRepository.findAddressById(orderDto.getAddress_id()));
         order.setReceiver_name(orderDto.getReceiver_name());
         order.setReceiver_phone(orderDto.getReceiver_phone());
