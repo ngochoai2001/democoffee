@@ -9,6 +9,7 @@ public interface UserJwtService extends UserDetailsService {
     Users save(UsersRegisteredDTO userRegisteredDTO);
 
     Users save( String phoneNum);
+    Users findUserByUsername(String username);
 
     CommonResponse updateUser(String fullname, String email, String phoneNum, long id);
     CommonResponse deleteUser(long id);
