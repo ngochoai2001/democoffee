@@ -39,6 +39,8 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(userRepository.findUsersById(user_id));
         order.setTotal(orderDto.getTotal());
         order.setAddress(addressRepository.findAddressById(orderDto.getAddress_id()));
+        order.setReceiver_name(orderDto.getReceiver_name());
+        order.setReceiver_phone(orderDto.getReceiver_phone());
 //        order.setOrder_items(orderDto.getOrder_items());
         Set<OrderItem> orderItems = new HashSet<>();
         Set<OrderItemDto> orderItemDtos = orderDto.getOrder_items();

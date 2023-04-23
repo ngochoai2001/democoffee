@@ -15,4 +15,8 @@ public class OrderDto {
 
     private Set<OrderItemDto> order_items;
 
+    private String receiver_name;
+
+    private String receiver_phone;
+
 }

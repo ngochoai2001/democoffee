@@ -46,6 +46,10 @@ public class Order {
 
     private String paymentMethod;
 
+    private String receiver_name;
+
+    private String receiver_phone;
+
     @OneToOne
     @JoinColumn(name = "voucher_id")
     @JsonBackReference

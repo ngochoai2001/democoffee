@@ -34,13 +34,13 @@ public class AddressController {
     }
 
     @PostMapping(value = "add")
-    public ResponseEntity<?> addAddress(@ModelAttribute  AddressDto addressDto, @RequestParam Long userid){
+    public ResponseEntity<?> addAddress(@RequestBody  AddressDto addressDto, @RequestParam Long userid){
         Address address = addressService.addAddress(addressDto, userid);
         return ResponseEntity.ok(addressRepository.findAddressById(address.getId()));
     }
 
     @PutMapping(value = "update/{id}")
-    public ResponseEntity<?> updateAddress(@PathVariable Long id, @ModelAttribute AddressDto addressDto){
+    public ResponseEntity<?> updateAddress(@PathVariable Long id, @RequestBody AddressDto addressDto){
         Address address = addressService.updateAddress(addressDto, id);
         if (address==null)
             return ResponseEntity.ok("Cannot found");
