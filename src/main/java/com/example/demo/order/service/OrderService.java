@@ -5,5 +5,6 @@ import com.example.demo.order.model.Order;
 
 public interface OrderService {
 
-    Order addOrder(OrderDto orderDto);
+    Order createOrder(OrderDto orderDto, Long user_id);
+
 }

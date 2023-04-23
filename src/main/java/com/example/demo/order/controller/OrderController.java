@@ -2,40 +2,162 @@ package com.example.demo.order.controller;
 
 import com.example.demo.common.Response;
 import com.example.demo.order.dto.OrderDto;
-import com.example.demo.order.dto.ProductOrderDto;
-import com.example.demo.order.model.ProductOrder;
-import com.example.demo.order.service.ProductOrderService;
+import com.example.demo.order.dto.OrderItemDto;
+import com.example.demo.order.model.Order;
+import com.example.demo.order.model.OrderItem;
+import com.example.demo.order.model.PaymentInfo;
+import com.example.demo.order.repository.OrderItemRepository;
+import com.example.demo.order.repository.OrderRepository;
+import com.example.demo.order.repository.PaymentRepository;
+import com.example.demo.order.service.OrderService;
+import com.example.demo.order.service.PayWithPaypalService;
 import com.example.demo.product.repository.ProductRepository;
+import com.example.demo.user.repository.UserRepository;
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payment;
+import com.paypal.base.rest.PayPalRESTException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("order")
 public class OrderController {
 
     @Autowired
-    ProductOrderService productOrderService;
+    OrderService orderService;
 
     @Autowired
     ProductRepository productRepository;
 
-    @PostMapping("/create")
-    public ResponseEntity<?> order(OrderDto orderDto){
+    @Autowired
+    OrderItemRepository orderItemRepository;
 
+    @Autowired
+    PaymentRepository paymentRepository;
+    @Autowired
+    PayWithPaypalService payWithPaypalService;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    public static final String PAYPAL_SUCCESS_URL = "pay/success";
+    public static final String PAYPAL_CANCEL_URL = "pay/cancel";
+
+    @PostMapping("order_pay_by_paypal")
+    public ResponseEntity<?> order_by_paypal(@RequestBody OrderDto orderDto, @RequestParam Long user_id) {
+        String token = "";
+        try {
+            Set<OrderItem> setOrderItem = orderDto.getOrder_items();
+            for( OrderItem i : setOrderItem){
+                if ( productRepository.findById(i.getProduct().getId()) ==null)
+                    return Response.response(null, 400, "Not found product" + i.getProduct().getName());
+                else orderItemRepository.save(i);
+            }
+
+            Order order = orderService.createOrder(orderDto, user_id);
+            order.setPaymentMethod("Paypal");
+            orderRepository.save(order);
+            Payment payment = payWithPaypalService.pay(order.getTotal() / 23447,
+                    "USD", "paypal", "thanh toan hoa don",
+                    "http://localhost:8080/" + PAYPAL_SUCCESS_URL,
+                    "http://localhost:8080/" + PAYPAL_CANCEL_URL);
+            PaymentInfo paymentInfo = new PaymentInfo();
+            paymentInfo.setOrder(order);
+            paymentInfo.setCurrency("VND");
+            paymentInfo.setTotal(order.getTotal());
+            paymentInfo.setUsers(userRepository.findUsersById(user_id));
+            paymentRepository.save(paymentInfo);
+            for (Links link : payment.getLinks()) {
+                if (link.getRel().equals("approval_url")) {
+                    String[] s = link.getHref().split("=");
+                    token = s[2];
+                    paymentInfo.setToken(token);
+                    paymentRepository.save(paymentInfo);
+                    return Response.response(link.getHref(), 200, "Success");
+
+                }
+            }
+        } catch (PayPalRESTException e){
+            System.out.println(e);
+        }
+        return Response.response(null, 400, "Payment pending");
     }
 
-    @PostMapping("/add_product_order")
-    public ResponseEntity<?> addProductOrder(ProductOrderDto productOrderDto){
-        if(productRepository.findById(productOrderDto.getProduct_id())==null)
-            return Response.response(null, 400, "Not found product");
+    @PostMapping("order_pay_with_cash")
+    public ResponseEntity<?> order_by_cash(@RequestBody OrderDto orderDto, @RequestParam Long user_id ) {
+        Set<OrderItem> setOrderItem = orderDto.getOrder_items();
+        for (OrderItem i : setOrderItem) {
+            if (orderItemRepository.findOrderItemById(i.getId()) == null)
+                return Response.response(null, 400, "Not found product item" + i.getProduct().getName());
+        }
 
-        ProductOrder productOrder = productOrderService.addProductOrder(productOrderDto);
-        return Response.response(productOrder, 200, "Success");
+        Order order = orderService.createOrder(orderDto, user_id);
+        order.setPaymentMethod("Cash");
+        orderRepository.save(order);
 
+        return Response.response(order, 400, "Order success");
     }
+
+    @GetMapping(value = PAYPAL_CANCEL_URL)
+    public ResponseEntity<?> cancelPay(@RequestParam("token") String token){
+        PaymentInfo paymentInfo = paymentRepository.findPaymentInfoByToken(token);
+        Order order = paymentInfo.getOrder();
+        paymentInfo.setStatus("UNPAID");
+        order.setStatus("CANCEL");
+        paymentRepository.save(paymentInfo);
+        orderRepository.save(order);
+        return Response.response(null, 200, "Cancel Payment Success");
+    }
+
+    @GetMapping(value = PAYPAL_SUCCESS_URL)
+    public ResponseEntity<?> successPay(@RequestParam("token") String token,
+                                        @RequestParam("payment_id") String payment_id,
+                                        @RequestParam("payer_id") String payer_id){
+        try {
+            Payment payment = payWithPaypalService.executePayment(payment_id, payer_id);
+            if (payment.getState().equals("approved")){
+                PaymentInfo paymentInfo = paymentRepository.findPaymentInfoByToken(token);
+                Order order = paymentInfo.getOrder();
+                paymentInfo.setStatus("PAID");
+                order.setStatus("DONE");
+                paymentRepository.save(paymentInfo);
+                orderRepository.save(order);
+                return Response.response(null, 200, "Pay success");
+            }
+        }catch (PayPalRESTException e){
+            System.out.println(e.getMessage());
+        }
+        return Response.response(null, 400,"Pay fail");
+    }
+
+    @PutMapping("cancel")
+    public ResponseEntity<?> cancelOrder(@RequestParam Long id){
+        Order order = orderRepository.findOrderById(id);
+        if(order ==null)
+            return Response.response(null, 400, "Not found order");
+        order.setStatus("CANCEL");
+        orderRepository.save(order);
+        return Response.response(null, 200, "Cancel success");
+    }
+
+
+    //admin
+    @PutMapping("confirm_order_success")
+    public ResponseEntity<?> confirmOrder(@RequestParam Long id){
+        Order order = orderRepository.findOrderById(id);
+        if(order ==null)
+            return Response.response(null, 400, "Not found order");
+        order.setStatus("DONE");
+        orderRepository.save(order);
+        return Response.response(null, 200, "Confirm order success");
+    }
+
 
 
 }

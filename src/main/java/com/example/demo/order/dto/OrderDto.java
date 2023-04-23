@@ -1,6 +1,9 @@
 package com.example.demo.order.dto;
 
+import com.example.demo.order.model.OrderItem;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 public class OrderDto {
@@ -8,12 +11,8 @@ public class OrderDto {
 
     private long address_id;
 
-    private int paymentMethod;
+    private int user_voucher_id;
 
-    private int id;
-
-    private int status;
-
-    private int rating;
+    private Set<OrderItem> order_items;
 
 }

@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Data
-public class ProductOrder {
+public class OrderItem {
 
     //product, soluong, size, topping
 

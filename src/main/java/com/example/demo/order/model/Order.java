@@ -2,12 +2,13 @@ package com.example.demo.order.model;
 //
 
 import com.example.demo.address.Address;
-import com.example.demo.product.model.Product;
 import com.example.demo.user.model.Users;
+import com.example.demo.voucher.model.UserVoucher;
 import com.example.demo.voucher.model.Voucher;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Table(name = "order")
 @Entity
+@Data
 public class Order {
 
     @Id
@@ -36,28 +38,24 @@ public class Order {
 
     @JsonManagedReference
     @OneToMany
-    @JoinColumn(name = "product_order_id")
-    private Set<ProductOrder> product_orders;
+    @JoinColumn(name = "order_item_id")
+    private Set<OrderItem> order_items;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreationTimestamp
     private LocalDateTime time_order;
 
-    //0: tien mat, 1: online
-    private int paymentMethod;
+    private String paymentMethod;
 
     @OneToOne
     @JoinColumn(name = "voucher_id")
     @JsonBackReference
-    private Voucher voucher;
+    private UserVoucher voucher;
 
-    //0 : dang thuc hien, 1: hoan tat, 2 : huy
-    private int status;
+    private String status;
 
     private int rating;
 
-    public Order() {
-    }
 
 //
 //    /* get (đang thực hiện, đã hoàn tất, đã hủy), add, huy don hang, đánh giá đơn hàng
