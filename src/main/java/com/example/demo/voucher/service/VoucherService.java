@@ -31,7 +31,8 @@ public class VoucherService {
     public VoucherReponse copyVoucher(UserVoucher vch){
         VoucherReponse response = new VoucherReponse(
                 vch.getId(), vch.getVch().getImage(), vch.getVch().getName(),
-                DateUtils.dateFormat(vch.getVch().getDate()),vch.getVch().getExpiredDaysLeft(),vch.isUsed(),vch.getVch().getDescription()
+                DateUtils.dateFormat(vch.getVch().getDate()),vch.getVch().getExpiredDaysLeft(),vch.isUsed(),vch.getVch().getDescription(),
+                vch.getVch().getVoucherType().name(), vch.getVch().getVoucherDiscountType().name(), vch.getVch().getDiscount()
         );
         return response;
     }
@@ -41,6 +42,12 @@ public class VoucherService {
     }
     public List<Voucher> getVoucher(Voucher vchs){
         return voucherRepository.findAll();
+    }
+
+    public void changeStatusVoucher(int id, boolean status){
+        UserVoucher userVoucher = userVoucherRepository.findUserVoucherById(id);
+        userVoucher.setUsed(status);
+        userVoucherRepository.save(userVoucher);
     }
 
 }

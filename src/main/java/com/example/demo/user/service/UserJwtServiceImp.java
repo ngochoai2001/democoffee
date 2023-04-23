@@ -88,6 +88,7 @@ public class UserJwtServiceImp implements UserJwtService {
             if (result == 1) {
                 SaveAccount.users.setFullname(fullname);
                 SaveAccount.users.setEmail(email);
+                SaveAccount.users.setPhoneNum(phoneNum);
                 return new CommonResponse("successful", 200);
             }
             return new CommonResponse("failure", 400);

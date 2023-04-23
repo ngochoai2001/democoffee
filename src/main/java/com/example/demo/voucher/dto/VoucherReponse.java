@@ -13,4 +13,7 @@ public class VoucherReponse {
     private long expireDateLeft;
     private boolean isUsed;
     String description;
+    String voucherType;
+    String voucherDiscountType;
+    private float discount;
 }

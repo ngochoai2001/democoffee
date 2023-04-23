@@ -21,7 +21,6 @@ public class AddressController {
     @Autowired
     private UserRepository userRepository;
 
-    // api get, add, edit, delete
     @GetMapping("")
     public ResponseEntity<?> getAddress(@RequestParam Long userid){
         if (userRepository.findUsersById(userid)==null){
