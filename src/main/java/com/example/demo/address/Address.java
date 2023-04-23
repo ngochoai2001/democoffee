@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
+@Data
 public class Address {
     // api get, add, edit, delete
     @Id
@@ -20,27 +21,8 @@ public class Address {
     @JoinColumn(name = "user_id")
     private Users user;
 
-    public long getId() {
-        return id;
-    }
+//    private String name_receiver;
+//    private String address_receiver;
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
 }

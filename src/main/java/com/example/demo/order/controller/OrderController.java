@@ -53,11 +53,18 @@ public class OrderController {
     public ResponseEntity<?> order_by_paypal(@RequestBody OrderDto orderDto, @RequestParam Long user_id) {
         String token = "";
         try {
-            Set<OrderItem> setOrderItem = orderDto.getOrder_items();
-            for( OrderItem i : setOrderItem){
-                if ( productRepository.findById(i.getProduct().getId()) ==null)
-                    return Response.response(null, 400, "Not found product" + i.getProduct().getName());
-                else orderItemRepository.save(i);
+            Set<OrderItemDto> setOrderItem = orderDto.getOrder_items();
+            for( OrderItemDto i : setOrderItem){
+                if ( productRepository.findById(i.getProduct_id()) ==null)
+                    return Response.response(null, 400, "Not found product" +
+                            productRepository.findById(i.getProduct_id()).getName());
+                else {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setProduct(productRepository.findById(i.getProduct_id()));
+                    orderItem.setSize(i.getSize());
+                    orderItem.setTopping(i.getTopping());
+                    orderItemRepository.save(orderItem);
+                }
             }
 
             Order order = orderService.createOrder(orderDto, user_id);
@@ -91,10 +98,18 @@ public class OrderController {
 
     @PostMapping("order_pay_with_cash")
     public ResponseEntity<?> order_by_cash(@RequestBody OrderDto orderDto, @RequestParam Long user_id ) {
-        Set<OrderItem> setOrderItem = orderDto.getOrder_items();
-        for (OrderItem i : setOrderItem) {
-            if (orderItemRepository.findOrderItemById(i.getId()) == null)
-                return Response.response(null, 400, "Not found product item" + i.getProduct().getName());
+        Set<OrderItemDto> setOrderItem = orderDto.getOrder_items();
+        for( OrderItemDto i : setOrderItem){
+            if ( productRepository.findById(i.getProduct_id()) ==null)
+                return Response.response(null, 400, "Not found product" +
+                        productRepository.findById(i.getProduct_id()).getName());
+            else {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setProduct(productRepository.findById(i.getProduct_id()));
+                orderItem.setSize(i.getSize());
+                orderItem.setTopping(i.getTopping());
+                orderItemRepository.save(orderItem);
+            }
         }
 
         Order order = orderService.createOrder(orderDto, user_id);

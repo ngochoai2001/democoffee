@@ -13,6 +13,6 @@ public class OrderDto {
 
     private int user_voucher_id;
 
-    private Set<OrderItem> order_items;
+    private Set<OrderItemDto> order_items;
 
 }
