@@ -73,9 +73,9 @@ public class OrderController {
             order.setPaymentMethod("Paypal");
             orderRepository.save(order);
             Payment payment = payWithPaypalService.pay(order.getTotal() / 23447,
-                    "USD", "paypal", "thanh toan hoa don",
-                    "http://localhost:8080/" + PAYPAL_SUCCESS_URL,
-                    "http://localhost:8080/" + PAYPAL_CANCEL_URL);
+                    "USD", "paypal", "sale",
+                    "http://localhost:8080/order/" + PAYPAL_CANCEL_URL,
+                    "http://localhost:8080/order/" + PAYPAL_SUCCESS_URL);
             PaymentInfo paymentInfo = new PaymentInfo();
             paymentInfo.setOrder(order);
             paymentInfo.setCurrency("VND");
@@ -117,15 +117,15 @@ public class OrderController {
         }
         Order order = orderService.createOrder(orderDto, user_id);
         order.setPaymentMethod("Cash");
-        orderRepository.save(order);
 
         List<OrderItem> orderItems = orderItemRepository.findAll();
         for (OrderItem i : orderItems){
             i.setOrder(orderRepository.findOrderById(order.getId()));
             orderItemRepository.save(i);
         }
+        orderRepository.save(order);
 
-        return Response.response(order, 400, "Order success");
+        return Response.response(order, 200, "Order success");
     }
 
     @GetMapping(value = PAYPAL_CANCEL_URL)
@@ -141,8 +141,8 @@ public class OrderController {
 
     @GetMapping(value = PAYPAL_SUCCESS_URL)
     public ResponseEntity<?> successPay(@RequestParam("token") String token,
-                                        @RequestParam("payment_id") String payment_id,
-                                        @RequestParam("payer_id") String payer_id){
+                                        @RequestParam("paymentId") String payment_id,
+                                        @RequestParam("PayerID") String payer_id){
         try {
             Payment payment = payWithPaypalService.executePayment(payment_id, payer_id);
             if (payment.getState().equals("approved")){
