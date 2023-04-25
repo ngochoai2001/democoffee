@@ -1,6 +1,8 @@
 package com.example.demo.voucher.model;
 
 import com.example.demo.user.model.Users;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -16,6 +18,7 @@ public class UserVoucher {
     @JoinColumn(name = "vch_id")
     private Voucher vch;
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id")
     private Users user;
     private boolean isUsed;

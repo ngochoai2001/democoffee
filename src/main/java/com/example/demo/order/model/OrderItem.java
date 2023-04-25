@@ -1,6 +1,7 @@
 package com.example.demo.order.model;
 
 import com.example.demo.product.model.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class OrderItem {
     private int quantity;
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonBackReference
     private Order order;
 
 }

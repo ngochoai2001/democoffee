@@ -13,7 +13,9 @@ import com.example.demo.voucher.repository.VoucherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -42,17 +44,19 @@ public class OrderServiceImpl implements OrderService {
         order.setReceiver_name(orderDto.getReceiver_name());
         order.setReceiver_phone(orderDto.getReceiver_phone());
 //        order.setOrder_items(orderDto.getOrder_items());
-        Set<OrderItem> orderItems = new HashSet<>();
-        Set<OrderItemDto> orderItemDtos = orderDto.getOrder_items();
+        List<OrderItem> orderItems = new ArrayList<>();
+        List<OrderItemDto> orderItemDtos = orderDto.getOrder_items();
         for(OrderItemDto i : orderItemDtos){
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(productRepository.findById(i.getProduct_id()));
             orderItem.setSize(i.getSize());
             orderItem.setQuantity(i.getQuantity());
             orderItem.setTopping(i.getTopping());
+//            orderItem.setOrder(order);
             orderItems.add(orderItem);
         }
-        order.setStatus("Pending");
+        order.setOrder_items(orderItems);
+        order.setStatus("PENDING");
         order.setVoucher(userVoucherRepository.findUserVoucherById(orderDto.getUser_voucher_id()));
         return orderRepository.save(order);
     }

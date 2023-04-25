@@ -3,6 +3,7 @@ package com.example.demo.order.dto;
 import com.example.demo.order.model.OrderItem;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,7 +14,7 @@ public class OrderDto {
 
     private int user_voucher_id;
 
-    private Set<OrderItemDto> order_items;
+    private List<OrderItemDto> order_items;
 
     private String receiver_name;
 

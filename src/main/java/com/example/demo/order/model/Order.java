@@ -13,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Table(name = "orders")
@@ -28,7 +29,7 @@ public class Order {
 
     @JoinColumn(name = "address_id")
     @OneToOne
-    @JsonBackReference
+    @JsonManagedReference
     private Address address;
 
     @JoinColumn(name = "user_id")
@@ -37,8 +38,9 @@ public class Order {
     private Users user;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "order")
-    private Set<OrderItem> order_items;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
+    private List<OrderItem> order_items;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreationTimestamp
@@ -52,7 +54,7 @@ public class Order {
 
     @OneToOne
     @JoinColumn(name = "voucher_id")
-    @JsonBackReference
+    @JsonManagedReference
     private UserVoucher voucher;
 
     private String status;

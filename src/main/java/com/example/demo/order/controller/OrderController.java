@@ -62,31 +62,21 @@ public class OrderController {
     public ResponseEntity<?> order_by_paypal(@RequestBody OrderDto orderDto, @RequestParam Long user_id) {
         String token = "";
         try {
-            Set<OrderItemDto> setOrderItem = orderDto.getOrder_items();
-            for (OrderItemDto i : setOrderItem) {
-
-                OrderItem orderItem = new OrderItem();
-                orderItem.setProduct(productRepository.findById(i.getProduct_id()));
-                orderItem.setSize(i.getSize());
-                orderItem.setQuantity(i.getQuantity());
-                orderItem.setTopping(i.getTopping());
-                orderItemRepository.save(orderItem);
-            }
 
             if (userVoucherRepository.findUserVoucherById(orderDto.getUser_voucher_id()) == null &&
-                    orderDto.getUser_voucher_id() != 0)
+                    orderDto.getUser_voucher_id() != 0) {
                 return Response.response(null, 400, "Not found user voucher");
+            }
 
             Order order = orderService.createOrder(orderDto, user_id);
-
             save_data_after_order(orderDto, order);
 
             order.setPaymentMethod("Paypal");
             orderRepository.save(order);
             Payment payment = payWithPaypalService.pay(order.getTotal() / 23447,
                     "USD", "paypal", "sale",
-                    "http://localhost:8080/order/" + PAYPAL_CANCEL_URL,
-                    "http://localhost:8080/order/" + PAYPAL_SUCCESS_URL);
+                    "http://com.hdv.magiccoffee/order/" + PAYPAL_CANCEL_URL,
+                    "http://com.hdv.magiccoffee/order/" + PAYPAL_SUCCESS_URL);
             PaymentInfo paymentInfo = new PaymentInfo();
             paymentInfo.setOrder(order);
             paymentInfo.setCurrency("VND");
@@ -100,7 +90,6 @@ public class OrderController {
                     paymentInfo.setToken(token);
                     paymentRepository.save(paymentInfo);
                     return Response.response(link.getHref(), 200, "Success");
-
                 }
             }
         } catch (PayPalRESTException e) {
@@ -112,36 +101,22 @@ public class OrderController {
     private void save_data_after_order(@RequestBody OrderDto orderDto, Order order) {
         if (orderDto.getUser_voucher_id() != 0)
             voucherService.changeStatusVoucher(orderDto.getUser_voucher_id(), true);
-
-        List<OrderItem> orderItems = orderItemRepository.findOrderItemsByOrder(order.getId());
-        for (OrderItem i : orderItems) {
-            i.setOrder(orderRepository.findOrderById(order.getId()));
-            orderItemRepository.save(i);
-        }
     }
 
     @PostMapping("order_pay_by_cash")
     public ResponseEntity<?> order_by_cash(@RequestBody OrderDto orderDto, @RequestParam Long user_id) {
-        Set<OrderItemDto> setOrderItem = orderDto.getOrder_items();
+        List<OrderItemDto> setOrderItem = orderDto.getOrder_items();
+        System.out.println(setOrderItem);
 
         if (userVoucherRepository.findUserVoucherById(orderDto.getUser_voucher_id()) == null &&
                 orderDto.getUser_voucher_id() != 0)
             return Response.response(null, 400, "Not found user voucher");
-
-        for (OrderItemDto i : setOrderItem) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(productRepository.findById(i.getProduct_id()));
-            orderItem.setSize(i.getSize());
-            orderItem.setTopping(i.getTopping());
-            orderItem.setQuantity(i.getQuantity());
-            orderItemRepository.save(orderItem);
-        }
-
         Order order = orderService.createOrder(orderDto, user_id);
+
         order.setPaymentMethod("Cash");
         save_data_after_order(orderDto, order);
+        System.out.println(orderItemRepository.findOrderItemsByOrder(order.getId()));
         orderRepository.save(order);
-
         return Response.response(order, 200, "Order success");
     }
 
@@ -164,6 +139,7 @@ public class OrderController {
                                         @RequestParam("PayerID") String payer_id) {
         try {
             Payment payment = payWithPaypalService.executePayment(payment_id, payer_id);
+            System.out.println("Done");
             if (payment.getState().equals("approved")) {
                 PaymentInfo paymentInfo = paymentRepository.findPaymentInfoByToken(token);
                 Order order = paymentInfo.getOrder();
