@@ -26,7 +26,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/registration/**","/login/**", "/user/**",
                         "/**").permitAll()
                 .anyRequest().authenticated()
-        ;
+                .and().oauth2Login().loginPage("/login").successHandler(successHandler);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.demo.user.controller;
 
+import com.example.demo.common.Response;
 import com.example.demo.sms.OTPDto;
 import com.example.demo.sms.OTPSender;
 import com.example.demo.user.dto.*;
@@ -13,6 +14,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -89,8 +91,14 @@ public class LoginController {
     }
 
     @GetMapping("/login/facebook")
-    public void loginWithFacebook(HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> loginWithFacebook() {
+        return Response.response("http://10.0.2.2:8080/oauth2/authorization/facebook", 200, "Redirect");
+
+    }
+    @GetMapping("/test/facebook")
+    public void test(HttpServletResponse response) throws IOException{
         response.sendRedirect("/oauth2/authorization/facebook");
+
     }
 
     @PostMapping("/login/phonenum")
