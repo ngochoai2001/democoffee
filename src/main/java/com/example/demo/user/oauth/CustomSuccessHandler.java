@@ -12,6 +12,7 @@ import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -63,9 +64,8 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         Gson gson = new Gson();
         response.getWriter().append(gson.toJson(userLoginResponse));
         response.setCharacterEncoding("UTF-8");
-
-//		redirectUrl = "/dashboard";
-//		new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
+		redirectUrl = "http://com.hdv.magiccoffee/";
+		new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
 }
