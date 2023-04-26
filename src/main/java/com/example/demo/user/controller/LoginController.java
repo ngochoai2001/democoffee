@@ -92,7 +92,7 @@ public class LoginController {
 
     @GetMapping("/login/facebook")
     public ResponseEntity<?> loginWithFacebook() {
-        return Response.response("http://10.0.2.2:8080/oauth2/authorization/facebook", 200, "Redirect");
+        return Response.response("https://10.0.2.2:8080/oauth2/authorization/facebook", 200, "Redirect");
 
     }
     @GetMapping("/test/facebook")
