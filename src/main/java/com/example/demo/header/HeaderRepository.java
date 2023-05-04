@@ -1,6 +1,5 @@
-package com.example.demo.header.model;
+package com.example.demo.header;
 
-import com.example.demo.voucher.model.Voucher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

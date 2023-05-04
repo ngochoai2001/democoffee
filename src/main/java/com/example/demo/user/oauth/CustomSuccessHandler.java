@@ -64,7 +64,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         Gson gson = new Gson();
         response.getWriter().append(gson.toJson(userLoginResponse));
         response.setCharacterEncoding("UTF-8");
-		redirectUrl = "http://com.hdv.magiccoffee/";
+		redirectUrl = "http://com.hdv.magiccoffee/email=";
 		new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 

@@ -1,4 +1,4 @@
-package com.example.demo.header.model;
+package com.example.demo.header;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

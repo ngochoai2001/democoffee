@@ -5,6 +5,7 @@ import com.example.demo.product.dto.ProductDto;
 import com.example.demo.product.dto.ProductResponse;
 import com.example.demo.product.model.Product;
 import com.example.demo.product.repository.ProductRepository;
+import com.example.demo.utils.ImageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,15 +52,15 @@ public class ProductService {
 
     public void uploadUserProfileImage(ProductDto productDto, MultipartFile file) {
         // 1. Check if image is not empty
-        isFileEmpty(file);
+        ImageUtils.isFileEmpty(file);
         // 2. If file is an image
-        isImage(file);
+        ImageUtils.isImage(file);
 
         // 3. The product exists in our database
 
 
         // 4. Grab some metadata from file if any
-        Map<String, String> metadata = extractMetadata(file);
+        Map<String, String> metadata = ImageUtils.extractMetadata(file);
 
         Product product = new Product();
         product.setName(productDto.getName());
@@ -85,40 +86,38 @@ public class ProductService {
 
     }
 
-    public byte[] downloadUserProfileImage(Product product) {
-
-        String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
-
-        return product.getImageLink().map(key -> fileStore.download(path, key)).orElse(new byte[0]);
-
-    }
-
-    private Map<String, String> extractMetadata(MultipartFile file) {
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("Content-Type", file.getContentType());
-        metadata.put("Content-Length", String.valueOf(file.getSize()));
-        return metadata;
-    }
-
-    private Product getUserProfileOrThrow(UUID productId) {
-        return productRepository.findAll().stream().filter(productProfile -> productProfile.getImageLink().equals(productId)).findFirst().orElseThrow(() -> new IllegalStateException(String.format("User profile %s not found", productId)));
-    }
-
-    private void isImage(MultipartFile file) {
-        if (!Arrays.asList(IMAGE_JPEG.getMimeType(), IMAGE_PNG.getMimeType(), IMAGE_GIF.getMimeType(), IMAGE_SVG.getMimeType()).contains(file.getContentType())) {
-            throw new IllegalStateException("File must be an image [" + file.getContentType() + "]");
-        }
-    }
-
-    private void isFileEmpty(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalStateException("Cannot upload empty file [ " + file.getSize() + "]");
-        }
-    }
-
     public List<ProductResponse> getSuggestionProduct() {
         List<ProductResponse> productResponses = new ArrayList<>();
         productResponses.addAll(productRepository.getSuggestionProduct("").stream().map(product -> copyProduct(product)).collect(Collectors.toList()));
         return productResponses;
+    }
+
+    public void updateProduct(UUID id,ProductDto productDto, MultipartFile file) {
+        Product product = productRepository.findById(id);
+        // 1. Check if image is not empty
+        ImageUtils.isFileEmpty(file);
+        // 2. If file is an image
+        ImageUtils.isImage(file);
+        // 3. The product exists in our database
+        // 4. Grab some metadata from file if any
+        Map<String, String> metadata = ImageUtils.extractMetadata(file);
+        String path = String.format("%s/%s", BucketName.PRODUCT_IMAGE.getBucketName(), product.getId());
+        String filename = String.format("%s", file.getOriginalFilename());
+        try {
+            String oldFilename = product.getImageLink().get().substring(Product.ORIGINAL_PATH.length(), product.getImageLink().get().length());
+            fileStore.deleteFile( oldFilename);
+            //save img on AWS
+            fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
+            //save product to database
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        product.setName(productDto.getName());
+        product.setCost(productDto.getCost());
+        product.setDescription(productDto.getDescription());
+        product.setProductCategory(productDto.getProductCategory());
+        product.setImageLink(Product.ORIGINAL_PATH + product.getId() + "/" + filename);
+        productRepository.save(product);
+
     }
 }

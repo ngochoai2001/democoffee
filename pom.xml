@@ -86,6 +86,11 @@
             <artifactId>google-api-client</artifactId>
             <version>1.30.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.dstuart</groupId>
+            <artifactId>ngrok-spring-boot-starter</artifactId>
+            <version>2.2.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.http-client</groupId>

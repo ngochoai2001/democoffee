@@ -2,10 +2,10 @@ package com.example.demo.product.controller;
 
 import com.example.demo.product.dto.ProductDto;
 import com.example.demo.product.dto.ProductResponse;
-import com.example.demo.product.model.Product;
 import com.example.demo.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,16 +43,20 @@ public class ProductController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public void addProduct(@ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
+    public  ResponseEntity.BodyBuilder addProduct(@ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
         productService.uploadUserProfileImage(productDto, file);
+        return ResponseEntity.ok();
+
     }
     @PostMapping(
-            path = "update/",
+            path = "update/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public void updateProduct(@ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
-//        productService.updateProduct(productDto, file);
+    public ResponseEntity.BodyBuilder updateProduct(@PathVariable ("id") UUID id,
+                                                    @ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
+        productService.updateProduct(id,productDto, file);
+        return ResponseEntity.ok();
     }
 
 
