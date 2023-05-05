@@ -194,4 +194,9 @@ public class OrderController {
         return Response.response(orderRepository.save(order), 200, "Success");
     }
 
+    @GetMapping("get_list_all_order")
+    public ResponseEntity<?> getAllOrder(){
+        return Response.response(orderRepository.findAll(), 200, "Success");
+    }
+
 }
