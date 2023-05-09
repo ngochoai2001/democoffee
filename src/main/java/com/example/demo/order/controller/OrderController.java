@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -192,6 +193,30 @@ public class OrderController {
             return Response.response(null, 400, "Not found order");
         order.setRating(rate);
         return Response.response(orderRepository.save(order), 200, "Success");
+    }
+
+    @GetMapping("get_list_all_order")
+    public ResponseEntity<?> getAllOrder(){
+        List<Order> list = orderRepository.findAll();
+        if(list.isEmpty())
+            return Response.response(null, 200, "No order");
+        return Response.response(list, 200, "Success");
+    }
+
+    @GetMapping("get_order_by_id")
+    public ResponseEntity<?> getOrderById(@RequestParam Long id){
+        Order order = orderRepository.findOrderById(id);
+        if(order == null)
+            return Response.response(null, 400, "Not found order");
+        return Response.response(order, 200, "Success");
+    }
+
+    @GetMapping("get_order_by_cash")
+    public ResponseEntity<?> getOrderByCash(){
+        List<Order> list = orderRepository.getOrderByCash("Cash");
+        if(list.isEmpty())
+            return Response.response(null, 200, "No order");
+        return Response.response(list, 200, "Success");
     }
 
 }
