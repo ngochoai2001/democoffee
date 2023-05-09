@@ -5,6 +5,7 @@ import com.example.demo.product.model.Product;
 import com.example.demo.product.service.FileStore;
 import com.example.demo.user.model.SaveAccount;
 import com.example.demo.user.model.Users;
+import com.example.demo.user.repository.UserRepository;
 import com.example.demo.utils.DateUtils;
 import com.example.demo.utils.ImageUtils;
 import com.example.demo.voucher.dto.AddVoucherRequest;
@@ -30,6 +31,8 @@ public class VoucherService {
 
     @Autowired
     UserVoucherRepository userVoucherRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     FileStore fileStore;
@@ -54,7 +57,15 @@ public class VoucherService {
     public Voucher addVoucher(AddVoucherRequest request, MultipartFile file) {
         Voucher vch = new Voucher();
         voucherSetValue(vch, request, file);
+        List<Users> all = userRepository.findAll();
         voucherRepository.save(vch);
+        all.stream().forEach(user ->{
+            UserVoucher userVoucher = new UserVoucher();
+            userVoucher.setUsed(false);
+            userVoucher.setUser(user);
+            userVoucher.setVch(vch);
+            userVoucherRepository.save(userVoucher);
+        });
         return vch;
     }
 
@@ -72,6 +83,7 @@ public class VoucherService {
         Voucher vch = voucherRepository.findById(id).get();
         voucherSetValue(vch, voucher, file);
         voucherRepository.save(vch);
+
         return vch;
 
     }
@@ -85,6 +97,7 @@ public class VoucherService {
         vch.setName(request.getName());
         vch.setQuantity(request.getQuantity());
         vch.setVoucherType(request.getVoucherType());
+        vch.setDescription(request.getDescription());
         vch.setVoucherDiscountType(request.getVoucherDiscountType());
         String path = String.format("%s/voucher", BucketName.PRODUCT_IMAGE.getBucketName());
         String filename = String.format("%s", file.getOriginalFilename());
