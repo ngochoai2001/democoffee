@@ -2,8 +2,10 @@ package com.example.demo.product.controller;
 
 import com.example.demo.product.dto.ProductDto;
 import com.example.demo.product.dto.ProductResponse;
+import com.example.demo.product.model.Product;
 import com.example.demo.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +45,9 @@ public class ProductController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public  ResponseEntity.BodyBuilder addProduct(@ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
-        productService.uploadUserProfileImage(productDto, file);
-        return ResponseEntity.ok();
+    public ResponseEntity<Product> addProduct(@ModelAttribute ProductDto productDto) {
+        Product product = productService.uploadUserProfileImage(productDto, productDto.getFile());
+        return new ResponseEntity<>(product, HttpStatus.OK);
 
     }
     @PostMapping(
@@ -53,10 +55,10 @@ public class ProductController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity.BodyBuilder updateProduct(@PathVariable ("id") UUID id,
-                                                    @ModelAttribute ProductDto productDto, @RequestParam("file") MultipartFile file) {
-        productService.updateProduct(id,productDto, file);
-        return ResponseEntity.ok();
+    public ResponseEntity<Product> updateProduct(@PathVariable ("id") UUID id,
+                                                    @ModelAttribute ProductDto productDto) {
+        Product product = productService.updateProduct(id,productDto, productDto.getFile());
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
 

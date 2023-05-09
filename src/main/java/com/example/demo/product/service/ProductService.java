@@ -50,7 +50,7 @@ public class ProductService {
         return pResponse;
     }
 
-    public void uploadUserProfileImage(ProductDto productDto, MultipartFile file) {
+    public Product uploadUserProfileImage(ProductDto productDto, MultipartFile file) {
         // 1. Check if image is not empty
         ImageUtils.isFileEmpty(file);
         // 2. If file is an image
@@ -79,7 +79,7 @@ public class ProductService {
             //save img on AWS
             fileStore.save(path, filename, Optional.of(metadata), file.getInputStream());
             //save product to database
-            productRepository.save(product);
+            return productRepository.save(product);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -92,7 +92,7 @@ public class ProductService {
         return productResponses;
     }
 
-    public void updateProduct(UUID id,ProductDto productDto, MultipartFile file) {
+    public Product updateProduct(UUID id,ProductDto productDto, MultipartFile file) {
         Product product = productRepository.findById(id);
         // 1. Check if image is not empty
         ImageUtils.isFileEmpty(file);
@@ -117,7 +117,7 @@ public class ProductService {
         product.setDescription(productDto.getDescription());
         product.setProductCategory(productDto.getProductCategory());
         product.setImageLink(Product.ORIGINAL_PATH + product.getId() + "/" + filename);
-        productRepository.save(product);
+        return productRepository.save(product);
 
     }
 }

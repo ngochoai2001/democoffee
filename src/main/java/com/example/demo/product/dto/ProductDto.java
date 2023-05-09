@@ -10,4 +10,5 @@ public class ProductDto {
     double cost;
     String description;
     private ProductCategory productCategory;
+    MultipartFile file;
 }
