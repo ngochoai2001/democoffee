@@ -1,6 +1,8 @@
 package com.example.demo.user.service;
 
 import com.amazonaws.services.connect.model.UserNotFoundException;
+import com.example.demo.address.Address;
+import com.example.demo.address.AddressRepository;
 import com.example.demo.user.dto.CommonResponse;
 import com.example.demo.user.dto.UsersRegisteredDTO;
 import com.example.demo.user.model.Role;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,9 @@ public class UserJwtServiceImp implements UserJwtService {
 
     @Autowired
     private RoleRepository roleRepo;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -103,6 +109,11 @@ public class UserJwtServiceImp implements UserJwtService {
         try {
             int result = userRepo.deleteUser(id);
             if (result == 1) {
+                List<Address> list = addressRepository.getAddressByUserId(id);
+                if(!list.isEmpty()){
+                    for(Address a : list)
+                        addressRepository.delete(a);
+                }
                 SaveAccount.users = new Users();
                 return new CommonResponse("successful", 200);
             }
